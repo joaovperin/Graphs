@@ -16,6 +16,8 @@
  */
 package br.com.jpe.graphs;
 
+import java.util.Scanner;
+
 /**
  * Main class
  */
@@ -27,26 +29,50 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        Main.runWithTestDummyArgs();
+        // Force to use test dummy data :P
+        if (true) {
+            args = new String[] { "--test" };
+        }
+        // Test data easter egg
+        if (args != null && args.length == 1 && args[0].toLowerCase().contains("--test")) {
+            Main.runWithTestDummyArgs();
+            System.exit(0);
+        }
+        // Run with data from the input
+        try (Scanner sc = new Scanner(System.in)) {
+            System.out.printf("\nPlease, input the number of vertexes: ");
+            int vertex = sc.nextInt();
+            System.out.printf("\nPlease, input the number of edges: ");
+            int edges = sc.nextInt();
+            System.out.printf("\nPlease, input %2d edges in the format '3 5' (without the quotes): ", edges);
+            int[][] edgesArray = new int[edges][2];
+            for (int i = 0; i < vertex; i++) {
+                edgesArray[i] = new int[2];
+                sc.reset();
+                String[] split = sc.next().split(" ");
+                int v0 = Integer.parseInt(split[0]),
+                        v1 = Integer.parseInt(split[1]);
+                edgesArray[i][0] = v0;
+                edgesArray[i][1] = v1;
+            }
+            // Run with the data
+            new Main(vertex, edgesArray).run();
+        }
     }
 
     /** Vertex count */
-    final int vertex;
-    /** Edges count */
-    final int edges;
+    private final int vertex;
     /** Matrix with input data - The connections */
-    final int[][] mtz;
+    private final int[][] mtz;
 
     /**
      * Class constructor
      *
      * @param vertex
-     * @param edges
      * @param mtz
      */
-    public Main(int vertex, int edges, int[][] mtz) {
+    public Main(int vertex, int[][] mtz) {
         this.vertex = vertex;
-        this.edges = edges;
         this.mtz = mtz;
     }
 
@@ -54,7 +80,7 @@ public class Main {
      * Run the application with test dummy data
      */
     private static void runWithTestDummyArgs() {
-        new Main(3, 2, new int[][] {
+        new Main(3, new int[][] {
             { 0, 1 },
             { 1, 2 }
         }).run();
