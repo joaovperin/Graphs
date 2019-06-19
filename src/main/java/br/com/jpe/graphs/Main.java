@@ -35,17 +35,13 @@ public class Main {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        // Force to use test dummy data :P
-        if (false) {
-            args = new String[] { "--test" };
-        }
         // Test data easter egg
         if (args != null && args.length == 1 && args[0].toLowerCase().contains("--test")) {
             Main.runWithTestDummyArgs();
             System.exit(0);
         }
         // Run with data from the input
-        try (BufferedReader sc = new BufferedReader(new InputStreamReader(System.in))) {
+        try ( BufferedReader sc = new BufferedReader(new InputStreamReader(System.in))) {
             System.out.printf("Please, input the number of vertexes: ");
             final int vertex = Integer.valueOf(sc.readLine());
             System.out.printf("Please, input the number of edges: ");
@@ -57,14 +53,23 @@ public class Main {
                 System.out.printf("Please, input %2d edges in the format '3 5' (without the quotes): ", currentEdge--);
                 String input = sc.readLine();
                 Matcher m = Pattern.compile("(\\d+)\\s+(\\d+)").matcher(input);
+                // Validate pattern
                 if (!m.find()) {
                     throw new InvalidParameterException("Invalid input: ".concat(input));
                 }
                 int v0 = Integer.parseInt(m.group(1)),
                         v1 = Integer.parseInt(m.group(2));
+                // Validate if vertex exists
                 if (v0 < 0 || v0 >= vertex || v1 < 0 || v1 >= vertex || v0 == v1) {
                     throw new InvalidParameterException("Invalid input: ".concat(input));
                 }
+                // Validate value already taken
+                for (int[] v : edgesArray) {
+                    if ((v[0] == v0 && v[1] == v1) || v[0] == v1 && v[1] == v0) {
+                        throw new InvalidParameterException("Invalid input: ".concat(input));
+                    }
+                }
+                // Store the values
                 edgesArray[i][0] = v0;
                 edgesArray[i][1] = v1;
             }
@@ -93,10 +98,10 @@ public class Main {
      * Run the application with test dummy data
      */
     private static void runWithTestDummyArgs() {
-        new Main(3, new int[][] {
-            { 0, 1 },
-            { 1, 2 },
-            { 2, 0 }
+        new Main(3, new int[][]{
+            {0, 1},
+            {1, 2},
+            {2, 0}
         }).run();
     }
 
@@ -138,7 +143,7 @@ public class Main {
         }
 
         // Validates the matrix Y axis to see if it's a regular graph
-        for (int j = 1; j < adjx.length; j++) {
+        for (int j = 0; j < adjx.length; j++) {
             int tmpCnt = cnt;
             for (int i = 0; i < adjx[0].length; i++) {
                 if (adjx[i][j] == 1) {
