@@ -16,7 +16,12 @@
  */
 package br.com.jpe.graphs;
 
-import java.util.Scanner;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.InputStreamReader;
+import java.security.InvalidParameterException;
 
 /**
  * Main class
@@ -27,10 +32,11 @@ public class Main {
      * Main method
      *
      * @param args
+     * @throws java.io.IOException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Force to use test dummy data :P
-        if (true) {
+        if (false) {
             args = new String[] { "--test" };
         }
         // Test data easter egg
@@ -39,19 +45,23 @@ public class Main {
             System.exit(0);
         }
         // Run with data from the input
-        try (Scanner sc = new Scanner(System.in)) {
-            System.out.printf("\nPlease, input the number of vertexes: ");
-            int vertex = sc.nextInt();
-            System.out.printf("\nPlease, input the number of edges: ");
-            int edges = sc.nextInt();
-            System.out.printf("\nPlease, input %2d edges in the format '3 5' (without the quotes): ", edges);
+        try (BufferedReader sc = new BufferedReader(new InputStreamReader(System.in))) {
+            System.out.printf("Please, input the number of vertexes: ");
+            int vertex = Integer.valueOf(sc.readLine());
+            System.out.printf("Please, input the number of edges: ");
+            int edges = Integer.valueOf(sc.readLine());
+            System.out.flush();
             int[][] edgesArray = new int[edges][2];
             for (int i = 0; i < vertex; i++) {
                 edgesArray[i] = new int[2];
-                sc.reset();
-                String[] split = sc.next().split(" ");
-                int v0 = Integer.parseInt(split[0]),
-                        v1 = Integer.parseInt(split[1]);
+                System.out.printf("Please, input %2d edges in the format '3 5' (without the quotes): ", edges--);
+                String input = sc.readLine();
+                Matcher m = Pattern.compile("(\\d+)\\s+(\\d+)").matcher(input);
+                if (!m.find()) {
+                    throw new InvalidParameterException("Invalid input: ".concat(input));
+                }
+                int v0 = Integer.parseInt(m.group(1)),
+                        v1 = Integer.parseInt(m.group(2));
                 edgesArray[i][0] = v0;
                 edgesArray[i][1] = v1;
             }
@@ -82,7 +92,8 @@ public class Main {
     private static void runWithTestDummyArgs() {
         new Main(3, new int[][] {
             { 0, 1 },
-            { 1, 2 }
+            { 1, 2 },
+            { 2, 0 }
         }).run();
     }
 
@@ -109,10 +120,24 @@ public class Main {
         // Defaults to regular graph
         boolean regular = true;
 
-        // Validates the matrix to see if it's a regular graph
+        // Validates the matrix X axis to see if it's a regular graph
         for (int i = 1; i < adjx.length; i++) {
             int tmpCnt = cnt;
             for (int j = 0; j < adjx[0].length; j++) {
+                if (adjx[i][j] == 1) {
+                    tmpCnt--;
+                }
+            }
+            // Needs to be 0
+            if (tmpCnt != 0) {
+                regular = false;
+            }
+        }
+
+        // Validates the matrix Y axis to see if it's a regular graph
+        for (int j = 1; j < adjx.length; j++) {
+            int tmpCnt = cnt;
+            for (int i = 0; i < adjx[0].length; i++) {
                 if (adjx[i][j] == 1) {
                     tmpCnt--;
                 }
