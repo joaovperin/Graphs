@@ -47,14 +47,14 @@ public class Main {
         // Run with data from the input
         try (BufferedReader sc = new BufferedReader(new InputStreamReader(System.in))) {
             System.out.printf("Please, input the number of vertexes: ");
-            int vertex = Integer.valueOf(sc.readLine());
+            final int vertex = Integer.valueOf(sc.readLine());
             System.out.printf("Please, input the number of edges: ");
-            int edges = Integer.valueOf(sc.readLine());
-            System.out.flush();
+            final int edges = Integer.valueOf(sc.readLine());
             int[][] edgesArray = new int[edges][2];
-            for (int i = 0; i < vertex; i++) {
+            int currentEdge = edges;
+            for (int i = 0; i < edges; i++) {
                 edgesArray[i] = new int[2];
-                System.out.printf("Please, input %2d edges in the format '3 5' (without the quotes): ", edges--);
+                System.out.printf("Please, input %2d edges in the format '3 5' (without the quotes): ", currentEdge--);
                 String input = sc.readLine();
                 Matcher m = Pattern.compile("(\\d+)\\s+(\\d+)").matcher(input);
                 if (!m.find()) {
@@ -62,6 +62,9 @@ public class Main {
                 }
                 int v0 = Integer.parseInt(m.group(1)),
                         v1 = Integer.parseInt(m.group(2));
+                if (v0 < 0 || v0 >= vertex || v1 < 0 || v1 >= vertex || v0 == v1) {
+                    throw new InvalidParameterException("Invalid input: ".concat(input));
+                }
                 edgesArray[i][0] = v0;
                 edgesArray[i][1] = v1;
             }
